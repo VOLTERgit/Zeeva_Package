@@ -402,8 +402,11 @@ def generate_pdf(save_path, patient, items, total, gst_applied, assets_dir, gst_
 
     hero_path = os.path.join(assets_dir, "hero_graphic.png")
     if os.path.exists(hero_path):
-        hw, hh = 172, 147
-        c.drawImage(hero_path, PAGE_W - margin - hw, ty(158), width=hw, height=hh,
+        # Enlarged ~12% per feedback (was 172x147). Anchor nudged down so
+        # the extra height is split between the page's top edge and the
+        # patient/stats card below, instead of clipping off the page top.
+        hw, hh = 193, 165
+        c.drawImage(hero_path, PAGE_W - margin - hw, ty(167), width=hw, height=hh,
                     preserveAspectRatio=True, mask="auto")
 
     c.setFont("Helvetica-Bold", 22)
@@ -720,9 +723,8 @@ def generate_pdf(save_path, patient, items, total, gst_applied, assets_dir, gst_
     # ambiguity about whether the headline price above already includes GST.
     ny = price_y - 16
     if gst_applied and gst_amount:
-        pre_gst = total - gst_amount
         note_lines = _wrap_text(
-            f"Rs {pre_gst:,.0f} + 5% GST (Rs {gst_amount:,.0f}) \u2014 applicable on surgery charges only",
+            "Applicable on surgery charges only",
             "Helvetica", 7.4, iw - 20)
         for line in note_lines:
             _center_text(c, ix + iw / 2, ny, line, "Helvetica", 7.4, GRAY_TXT)
@@ -748,12 +750,18 @@ def generate_pdf(save_path, patient, items, total, gst_applied, assets_dir, gst_
     ]
     # Distribute the (now shorter) trust list evenly across the remaining
     # card height so it still reads as an intentional, balanced block
-    # instead of leaving a big empty gap at the bottom of the card.
+    # instead of leaving a big empty gap at the bottom of the card. Text/
+    # icons were bumped up (8pt -> 10pt) and the gap ceiling tightened so
+    # this reads as a filled block instead of 3 small lines floating in
+    # a lot of empty space.
     trust_top = ny - 18
     trust_bottom_limit = (iy_top - ih) + 16
     available_h = max(trust_top - trust_bottom_limit, 0)
     item_gap = available_h / len(trust_items) if trust_items else 0
-    item_gap = max(24, min(item_gap, 34))
+    item_gap = max(22, min(item_gap, 30))
+
+    TRUST_FONT = 10
+    TRUST_LINE_H = 12
 
     ty_cursor = trust_top
     for i, (icon_kind, t) in enumerate(trust_items):
@@ -762,17 +770,17 @@ def generate_pdf(save_path, patient, items, total, gst_applied, assets_dir, gst_
         if ty_cursor < trust_bottom_limit:
             break
         if icon_kind == "star":
-            _draw_star(c, ix + 18, ty_cursor + 2, 4.5)
+            _draw_star(c, ix + 19, ty_cursor + 2, 5.4)
         else:
-            _icon_circle(c, ix + 18, ty_cursor + 2, 6, fill=HexColor("#E7F3F2"))
-            _draw_check_icon(c, ix + 18, ty_cursor + 1, 2.6, color=TEAL_DEEP)
-        lines = _wrap_text(t, "Helvetica", 8, iw - 40)
+            _icon_circle(c, ix + 19, ty_cursor + 2, 7.2, fill=HexColor("#E7F3F2"))
+            _draw_check_icon(c, ix + 19, ty_cursor + 1, 3.1, color=TEAL_DEEP)
+        lines = _wrap_text(t, "Helvetica", TRUST_FONT, iw - 44)
         yy = ty_cursor
-        c.setFont("Helvetica", 8)
+        c.setFont("Helvetica", TRUST_FONT)
         c.setFillColor(DARK)
         for line in lines:
-            c.drawString(ix + 30, yy, line)
-            yy -= 10
+            c.drawString(ix + 33, yy, line)
+            yy -= TRUST_LINE_H
         ty_cursor -= item_gap
 
     # ================= TERMS & CONDITIONS (same page, below both cards) =================

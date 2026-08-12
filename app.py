@@ -301,15 +301,19 @@ class ZeevaApp:
 
         self.items.append(LineItem(
             table, r, "PRP Therapy Sessions", "session_flat", self._recalc,
-            default_qty=6, default_rate=22500, unit_label="sessions",
+            default_qty=1, default_rate=0, unit_label="sessions",
+            detail_template="{qty} Sessions Included")); r += 1
+        self.items.append(LineItem(
+            table, r, "GFC Therapy Sessions", "session_flat", self._recalc,
+            default_qty=1, default_rate=0, unit_label="sessions",
             detail_template="{qty} Sessions Included")); r += 1
         self.items.append(LineItem(
             table, r, "Post-Operative Care", "flat", self._recalc,
-            default_rate=2000, detail_template="Post-Op Immediate Medication Included")); r += 1
+            default_rate=2000, detail_template="Post-Op (1 Week) Immediate Medication Included")); r += 1
         self.items.append(LineItem(
             table, r, "Medicine", "medicine", self._recalc,
             default_rate=0, default_amount2=0,
-            detail_template="Post-Op (1 Week) & Long-Term (1 Year) Medication Included")); r += 1
+            detail_template="Long-Term (1 Year) Medication Included")); r += 1
         self.items.append(LineItem(
             table, r, "Anesthesia", "flat", self._recalc,
             default_rate=20000, detail_template="Included")); r += 1
