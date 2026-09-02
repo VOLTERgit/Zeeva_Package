@@ -408,13 +408,14 @@ class ZeevaApp:
 
     def _grand_total(self):
         """
-        GST (5%) applies ONLY to the Hair Transplant Surgery (grafts) amount -
-        e.g. 4000 grafts = Rs 2,40,000 + 5% GST. Every other line item
-        (blood tests, PRP, medicine, anesthesia, advance payment, etc.) is
-        added at its plain amount, with no GST on top.
+        GST (5%) applies ONLY to the surgery (grafts) amounts - Hair
+        Transplant Surgery AND Beard Transplant Surgery - e.g. 4000 grafts
+        = Rs 2,40,000 + 5% GST. Every other line item (blood tests, PRP,
+        medicine, anesthesia, advance payment, etc.) is added at its plain
+        amount, with no GST on top.
         """
         subtotal = self._subtotal()
-        graft_amount = self.graft_item.amount()
+        graft_amount = self.graft_item.amount() + self.beard_item.amount()
         if self.gst_var.get():
             return (subtotal - graft_amount) + graft_amount * 1.05
         return subtotal
@@ -425,7 +426,7 @@ class ZeevaApp:
         breakdown instead of just a '5% applies' note."""
         if not self.gst_var.get():
             return 0.0
-        return self.graft_item.amount() * 0.05
+        return (self.graft_item.amount() + self.beard_item.amount()) * 0.05
 
     def _recalc(self):
         total = self._grand_total()
